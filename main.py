@@ -16,18 +16,52 @@
 #
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
+from google.appengine.api.urlfetch import fetch
+from django.utils import simplejson as json
 
 
-class MainHandler(webapp.RequestHandler):
+class DeptHandler(webapp.RequestHandler):
     def get(self):
-        self.response.out.write('Hello world!')
+        response = {}
+        if self.request.has_key('id'):
+            self.response.out.write(json.dumps(response))
+        else
+            self.response.out.write(json.dumps(response))
 
+class DoctorHandler(webapp.RequestHandler):
+    def get(self):
+        response = {}
+        if self.request.has_key('id'):
+            self.response.out.write(json.dumps(response))
+        else
+            self.response.out.write(json.dumps(response))
 
+class RegisterHandler(webapp.RequestHandler):
+    def post(self):
+        response = {}
+        self.response.out.write(json.dumps(response))
+
+class CancelHandler(webapp.RequestHandler):
+    def post(self):
+        response = {}
+        self.response.out.write(json.dumps(response))
+
+class TestHandler(webapp.RequestHandler):
+    def get(self):
+        pass
+
+HOSPITAL = 'cgmh'
 def main():
-    application = webapp.WSGIApplication([('/', MainHandler)],
-                                         debug=True)
+    application = webapp.WSGIApplication([
+        ("/%s/dept" % HOSPITAL, DeptHandler),
+        ("/%s/doctor" % HOSPITAL, DoctorHandler),
+        ("/%s/register" % HOSPITAL, MainHandler),
+        ("/%s/cancel_register" % HOSPITAL, CancelHandler),
+        ("/", TestHandler)
+    ], debug=True)
     util.run_wsgi_app(application)
 
 
 if __name__ == '__main__':
     main()
+
