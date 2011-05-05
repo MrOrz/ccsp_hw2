@@ -19,21 +19,38 @@ from google.appengine.ext.webapp import util
 from google.appengine.api.urlfetch import fetch
 from django.utils import simplejson as json
 
+HOSPITAL = 'cgmh'
+
+# urls used in this app
+urls = {
+    'prefix': 'http://www.cgmh.org.tw/register/',
+    'dept'  : 'rms_shk.htm'
+}
+
+def url_for(u):
+    ### handles the url stuff ###
+    return urls['prefix'] + urls[u]
+
+def utf8(big5_str):
+    ### decode big-5 html from the hospital ###
+    return big5_str.decode('big5').encode('utf-8')
 
 class DeptHandler(webapp.RequestHandler):
+    ### department information & listing ###
     def get(self):
         response = {}
-        if self.request.has_key('id'):
-            self.response.out.write(json.dumps(response))
-        else
+        if self.request.get('id') == '':    # get all department
+            html = utf8( fetch(url_for('dept')).content )
+            self.response.out.write(html)
+        else:                               # get a specific department
             self.response.out.write(json.dumps(response))
 
 class DoctorHandler(webapp.RequestHandler):
     def get(self):
         response = {}
-        if self.request.has_key('id'):
+        if self.request.get('id') == '':
             self.response.out.write(json.dumps(response))
-        else
+        else:
             self.response.out.write(json.dumps(response))
 
 class RegisterHandler(webapp.RequestHandler):
@@ -50,12 +67,11 @@ class TestHandler(webapp.RequestHandler):
     def get(self):
         pass
 
-HOSPITAL = 'cgmh'
 def main():
     application = webapp.WSGIApplication([
         ("/%s/dept" % HOSPITAL, DeptHandler),
         ("/%s/doctor" % HOSPITAL, DoctorHandler),
-        ("/%s/register" % HOSPITAL, MainHandler),
+        ("/%s/register" % HOSPITAL, RegisterHandler),
         ("/%s/cancel_register" % HOSPITAL, CancelHandler),
         ("/", TestHandler)
     ], debug=True)
