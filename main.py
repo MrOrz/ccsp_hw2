@@ -18,6 +18,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 from google.appengine.api.urlfetch import fetch
 from django.utils import simplejson as json
+import re # regex
 
 HOSPITAL = 'cgmh'
 
@@ -31,17 +32,23 @@ def url_for(u):
     ### handles the url stuff ###
     return urls['prefix'] + urls[u]
 
-def utf8(big5_str):
-    ### decode big-5 html from the hospital ###
-    return big5_str.decode('big5').encode('utf-8')
+def u(big5_str):
+    ### decode big-5 html from the hospital & convert to unicode string ###
+    return unicode(big5_str.decode('big5'))
 
 class DeptHandler(webapp.RequestHandler):
     ### department information & listing ###
     def get(self):
         response = {}
         if self.request.get('id') == '':    # get all department
-            html = utf8( fetch(url_for('dept')).content )
-            self.response.out.write(html)
+            html = u( fetch(url_for('dept')).content )
+
+            # use regex to extract links directly. no soup needed :P
+            lst = re.findall(r'<a href="RMSTimeTable\.aspx\?dpt=(\w+)">(.+)</a>', html)
+            response = [{l[0]:l[1]} for l in lst]
+#            for l in lst:
+#                self.response.out.write(l[0] + ': ' + l[1] + '<br />')
+            self.response.out.write(json.dumps(response))
         else:                               # get a specific department
             self.response.out.write(json.dumps(response))
 
